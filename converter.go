@@ -9,7 +9,7 @@ import (
 	ffmpeg "github.com/Igor57/transcoder/ffmpeg"
 )
 
-func Convert(input string, outputPath string, outputName string, partName string) (<-chan transcoder.Progress, *exec.Cmd, error) {
+func Convert(input string, outputPath string, outputName string) (<-chan transcoder.Progress, *exec.Cmd, error) {
 
 	ffmpegConf := &ffmpeg.Config{
 		FfmpegBinPath:   "/usr/bin/ffmpeg",
@@ -38,7 +38,7 @@ func Convert(input string, outputPath string, outputName string, partName string
 	hlsSegmentDuration := 4
 	hlsPlaylistType := "event"
 	hlsMasterPlaylistName := "index.m3u8"
-	hlsSegmentFilename := outputPath + "stream_%v/data%06d.ts"
+	hlsSegmentFilename := "stream_%v/data%06d.ts"
 	useLocaltimeMkdir := 1
 	varStreamMap := "v:0,a:0 v:1,a:1 v:2,a:2"
 	optsAfterInput := ffmpeg.Options{
