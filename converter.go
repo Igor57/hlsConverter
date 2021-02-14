@@ -38,8 +38,8 @@ func Convert(input string, outputPath string, outputName string) (<-chan transco
 	hlsSegmentDuration := 4
 	hlsPlaylistType := "event"
 	hlsMasterPlaylistName := "index.m3u8"
-	hlsSegmentFilename := "stream_%v/data%06d.ts"
-	useLocaltimeMkdir := 1
+	hlsSegmentFilename := outputPath + "stream_%v_data%06d.ts"
+	//useLocaltimeMkdir := 1
 	varStreamMap := "v:0,a:0 v:1,a:1 v:2,a:2"
 	optsAfterInput := ffmpeg.Options{
 		FilterComplex:         &filterComplex,
@@ -53,8 +53,8 @@ func Convert(input string, outputPath string, outputName string) (<-chan transco
 		HlsPlaylistType:       &hlsPlaylistType,
 		HlsMasterPlaylistName: &hlsMasterPlaylistName,
 		HlsSegmentFilename:    &hlsSegmentFilename,
-		UseLocaltimeMkdir:     &useLocaltimeMkdir,
-		VarStreamMap:          &varStreamMap,
+		//UseLocaltimeMkdir:     &useLocaltimeMkdir,
+		VarStreamMap: &varStreamMap,
 	}
 
 	progress, cmd, err := ffmpeg.
