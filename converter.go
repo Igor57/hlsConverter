@@ -21,17 +21,18 @@ func Convert(input string, outputPath string, outputName string) (<-chan transco
 		Listen: &flagUp,
 	}
 
-	filterComplex := "[v:0]split=3[original][temp720p][temp540p];[temp720p]scale=w=1280:h=720[720p];[temp540p]scale=w=960:h=540[540p]"
+	//filterComplex := "[v:0]split=3[original][temp720p][temp540p];[temp720p]scale=w=1280:h=720[720p];[temp540p]scale=w=960:h=540[540p]"
 	preset := "veryfast"
 	keyframeInterval := 50
 	scThreshold := 0
+	videoCodec := "libx264"
 	maps := []string{
-		"[original] -c:v:0 libx264 -b:v:0 6000k -maxrate:v:0 6600k -bufsize:v:0 9000k",
-		"[720p] -c:v:1 libx264 -b:v:1 4000k -maxrate:v:1 4400k -bufsize:v:1 6000k",
-		"[540p] -c:v:2 libx264 -b:v:2 2000k -maxrate:v:2 2200k -bufsize:v:2 3000k",
+		"v:0 -s:v:0 854x480 -b:v:0 800k -maxrate:v:0 900k -bufsize:v:0 1.8M",
+		"v:0 -s:v:1 1280x720 -b:v:1 1.2M -maxrate:v:1 1.8M -bufsize:v:1 3.6M",
+		"v:0 -s:v:2 1920x1080 -b:v:2 2.5M -maxrate:v:2 4M -bufsize:v:2 8M",
 		"a:0",
 		"a:0",
-		"a:0",
+		"a:0 -c:a aac -ac 2",
 	}
 	outputFormat := "hls"
 	hlsFlags := "append_list+omit_endlist+discont_start"
@@ -42,7 +43,8 @@ func Convert(input string, outputPath string, outputName string) (<-chan transco
 	//useLocaltimeMkdir := 1
 	varStreamMap := "v:0,a:0 v:1,a:1 v:2,a:2"
 	optsAfterInput := ffmpeg.Options{
-		FilterComplex:         &filterComplex,
+		//FilterComplex:         &filterComplex,
+		VideoCodec:            &videoCodec,
 		Preset:                &preset,
 		KeyframeInterval:      &keyframeInterval,
 		ScThreshold:           &scThreshold,
