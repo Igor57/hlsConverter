@@ -16,18 +16,21 @@ func Convert(input string, outputPath string, outputName string) (<-chan transco
 		FfprobeBinPath:  "/usr/bin/ffprobe",
 		ProgressEnabled: true,
 		Verbose:         true,
-		DirtyCMD:        true,
+		//DirtyCMD:        true,
 	}
 	flagUp := 1
 	optsBeforeInput := ffmpeg.Options{
 		Listen: &flagUp,
 	}
 
-	filterComplex := "'[v:0]split=3[temp1080p][temp720p][temp480p];[temp1080p]scale=w=1920:h=1080[1080p];[temp720p]scale=w=1280:h=720[720p];[temp480p]scale=w=854:h=480[480p]'"
+	filterComplex := "[v:0]split=3[temp1080p][temp720p][temp480p];[temp1080p]scale=w=1920:h=1080[1080p];[temp720p]scale=w=1280:h=720[720p];[temp480p]scale=w=854:h=480[480p]"
 	preset := "veryfast"
 	keyframeInterval := 50
 	scThreshold := 0
 	//videoCodec := "libx264"
+	audioCodec := "aac"
+	audioBitrate := "192k"
+	audioChannels := 2
 	// maps := []string{
 	// 	"v:0 -s:v:0 854x480 -b:v:0 800k -maxrate:v:0 900k -bufsize:v:0 1.8M",
 	// 	"v:0 -s:v:1 1280x720 -b:v:1 1.2M -maxrate:v:1 1.8M -bufsize:v:1 3.6M",
@@ -37,13 +40,41 @@ func Convert(input string, outputPath string, outputName string) (<-chan transco
 	// 	"a:0 -c:a aac -ac 2",
 	// }
 	maps := []string{
-		"[1080p] -c:v:0 libx264 -b:v:0 3000k -maxrate:v:0 4500k -bufsize:v:0 9000k",
-		"[720p] -c:v:1 libx264 -b:v:1 1200k -maxrate:v:1 1400k -bufsize:v:1 2800k",
-		"[480p] -c:v:2 libx264 -b:v:2 700k -maxrate:v:2 900k -bufsize:v:2 1800k",
-		"a:0 -c:a:0 aac -b:a:0 192k -ac 2",
-		"a:0 -c:a:1 aac -b:a:1 192k -ac 2",
-		"a:0 -c:a:2 aac -b:a:2 192k -ac 2",
+		//"[1080p] -c:v:0 libx264 -b:v:0 3000k -maxrate:v:0 4500k -bufsize:v:0 9000k",
+		//"[720p] -c:v:1 libx264 -b:v:1 1200k -maxrate:v:1 1400k -bufsize:v:1 2800k",
+		//"[480p] -c:v:2 libx264 -b:v:2 700k -maxrate:v:2 900k -bufsize:v:2 1800k",
+		"[1080p]",
+		"[720p]",
+		"[480p]",
+		"a:0",
+		"a:0",
+		"a:0",
 	}
+	extraArgs := make(map[string]interface{})
+	extraArgs["-c:v:0"] = "libx264"
+	extraArgs["-c:v:1"] = "libx264"
+	extraArgs["-c:v:2"] = "libx264"
+
+	extraArgs["-b:v:0"] = "3000k"
+	extraArgs["-b:v:1"] = "1200k"
+	extraArgs["-b:v:2"] = "700k"
+
+	extraArgs["-maxrate:v:0"] = "4500k"
+	extraArgs["-maxrate:v:1"] = "1400k"
+	extraArgs["-maxrate:v:2"] = "900k"
+
+	extraArgs["-bufsize:v:0"] = "9000k"
+	extraArgs["-bufsize:v:1"] = "2800k"
+	extraArgs["-bufsize:v:2"] = "1800k"
+
+	// extraArgs := map[string]interface{
+	// 	"[1080p] -c:v:0 libx264 -b:v:0 3000k -maxrate:v:0 4500k -bufsize:v:0 9000k",
+	// 	"[720p] -c:v:1 libx264 -b:v:1 1200k -maxrate:v:1 1400k -bufsize:v:1 2800k",
+	// 	"[480p] -c:v:2 libx264 -b:v:2 700k -maxrate:v:2 900k -bufsize:v:2 1800k",
+	// 	"a:0",
+	// 	"a:0",
+	// 	"a:0",
+	// }
 	outputFormat := "hls"
 	hlsFlags := "append_list+omit_endlist+discont_start"
 	hlsSegmentDuration := 4
@@ -51,10 +82,13 @@ func Convert(input string, outputPath string, outputName string) (<-chan transco
 	hlsMasterPlaylistName := "index.m3u8"
 	hlsSegmentFilename := outputPath + "stream_%v_data%06d.ts"
 	//useLocaltimeMkdir := 1
-	varStreamMap := "'v:0,a:0 v:1,a:1 v:2,a:2'"
+	varStreamMap := "v:0,a:0 v:1,a:1 v:2,a:2"
 	optsAfterInput := ffmpeg.Options{
 		FilterComplex: &filterComplex,
 		//VideoCodec:            &videoCodec,
+		AudioCodec:            &audioCodec,
+		AudioBitrate:          &audioBitrate,
+		AudioChannels:         &audioChannels,
 		Preset:                &preset,
 		KeyframeInterval:      &keyframeInterval,
 		ScThreshold:           &scThreshold,
@@ -67,6 +101,7 @@ func Convert(input string, outputPath string, outputName string) (<-chan transco
 		HlsSegmentFilename:    &hlsSegmentFilename,
 		//UseLocaltimeMkdir:     &useLocaltimeMkdir,
 		VarStreamMap: &varStreamMap,
+		ExtraArgs:    extraArgs,
 	}
 
 	progress, cmd, err := ffmpeg.
