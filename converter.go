@@ -15,7 +15,7 @@ func Convert(input string, outputPath string, outputName string) (<-chan transco
 		FfmpegBinPath:   "/usr/bin/ffmpeg",
 		FfprobeBinPath:  "/usr/bin/ffprobe",
 		ProgressEnabled: true,
-		Verbose:         true,
+		//Verbose:         true,
 		//DirtyCMD:        true,
 	}
 	flagUp := 1
